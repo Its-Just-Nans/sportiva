@@ -89,6 +89,16 @@ const name = activity["Activity Name"];
         };
 
         const plotly = (gpx) => {
+            const margins = {
+                margin: {
+                    l: 20,
+                    r: 20,
+                    b: 20,
+                    t: 100,
+                    pad: 4,
+                },
+            };
+
             const elevation = gpx.get_elevation_data().reduce(
                 (acc, [x, y]) => {
                     acc[0].push(x);
@@ -105,6 +115,7 @@ const name = activity["Activity Name"];
             };
             Plotly.newPlot("elevation", [trace1], {
                 title: "Stats Elevation",
+                ...margins,
             });
 
             const speed = gpx.get_speed_data().reduce(
@@ -123,6 +134,7 @@ const name = activity["Activity Name"];
             };
             Plotly.newPlot("speed", [trace2], {
                 title: "Stats Speed",
+                ...margins,
             });
 
             const cadence = gpx.get_cadence_data().reduce(
@@ -142,6 +154,7 @@ const name = activity["Activity Name"];
 
             Plotly.newPlot("cadence", [trace3], {
                 title: "Stats cadence",
+                ...margins,
             });
         };
 
@@ -172,5 +185,15 @@ const name = activity["Activity Name"];
         overflow: hidden;
         height: 500px;
         width: 80%;
+    }
+
+    @media screen and (max-width: 600px) {
+        .graph {
+            flex-direction: column;
+            height: 300px;
+        }
+        #map {
+            height: 300px;
+        }
     }
 </style>
