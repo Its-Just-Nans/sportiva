@@ -41,6 +41,7 @@ export async function getStaticPaths() {
             data = data.toString();
             files.push({ id: correctId, data, activity, url: `../../${folder}/${path}` });
             const publicPath = join(publicFolder, path);
+            console.log("Copying", publicPath);
             writeFileSync(publicPath, data);
         }
     }
@@ -55,6 +56,12 @@ const { activity, url } = Astro.props;
 
 <Layout title={activity["Activity Name"]}>
     <script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""
+    />
     <script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/2.1.0/gpx.min.js"></script>
     <script is:inline src="https://cdn.plot.ly/plotly-2.35.0.min.js" charset="utf-8"></script>
 
@@ -147,9 +154,6 @@ const { activity, url } = Astro.props;
 </Layout>
 
 <style>
-    :global(#map img) {
-        position: absolute;
-    }
     main {
         height: 100%;
     }
