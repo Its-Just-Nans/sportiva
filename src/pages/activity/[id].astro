@@ -52,9 +52,10 @@ export async function getStaticPaths() {
 }
 
 const { activity, url } = Astro.props;
+const name = activity["Activity Name"];
 ---
 
-<Layout title={activity["Activity Name"]}>
+<Layout title={name} description={`Activity ${name} on Sportiva`}>
     <script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
     <link
         rel="stylesheet"
