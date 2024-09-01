@@ -23,7 +23,7 @@ import Misc from "../components/Misc.astro";
         </button>
     </header>
     <main>
-        <section class="user-profile">
+        <section>
             <Profile />
         </section>
         <section class="activity-feed">
@@ -40,20 +40,6 @@ import Misc from "../components/Misc.astro";
     .link-repo {
         color: white;
         text-decoration: none;
-    }
-    .user-profile {
-        height: fit-content;
-        background-color: white;
-        border-radius: 8px;
-        padding: 20px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
-
-    .user-profile img {
-        width: 100px;
-        height: 100px;
-        border-radius: 50%;
-        object-fit: cover;
     }
 
     main {
@@ -93,5 +79,25 @@ import Misc from "../components/Misc.astro";
         padding: 10px 20px;
         border-radius: 4px;
         cursor: pointer;
+    }
+    @media screen and (max-width: 768px) {
+        main {
+            grid-template-columns: 1fr;
+            grid-template-rows: max-content auto auto;
+        }
+        section::after {
+            content: "------";
+            text-align: center;
+            display: block;
+            clear: both;
+        }
+        nav ul {
+            gap: 10px;
+            padding-inline-start: 5px;
+        }
+
+        button {
+            padding: 10px 10px;
+        }
     }
 </style>
