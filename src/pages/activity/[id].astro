@@ -26,21 +26,23 @@ export async function getStaticPaths() {
     if (!existsSync(publicFolder)) {
         mkdirSync(publicFolder);
     }
-    for (const file of readdirSync("export/activities")) {
-        const activity = activities.find((act) => act["Filename"] == `activities/${file}`);
-        if (!activity) {
-            throw new Error(`Activity ${file} not found`);
+    if (existsSync("export/activities")) {
+        for (const file of readdirSync("export/activities")) {
+            const activity = activities.find((act) => act["Filename"] == `activities/${file}`);
+            if (!activity) {
+                throw new Error(`Activity ${file} not found`);
+            }
+            let data = readFileSync(`export/activities/${file}`);
+            const correctId = activity["Activity ID"];
+            const path = correctId + ".gpx";
+            if (file.endsWith(".gpx.gz")) {
+                data = await decompressGzip(data);
+            }
+            data = data.toString();
+            files.push({ id: correctId, data, activity, url: `../${folder}/${path}` });
+            const publicPath = join(publicFolder, path);
+            writeFileSync(publicPath, data);
         }
-        let data = readFileSync(`export/activities/${file}`);
-        const correctId = activity["Activity ID"];
-        const path = correctId + ".gpx";
-        if (file.endsWith(".gpx.gz")) {
-            data = await decompressGzip(data);
-        }
-        data = data.toString();
-        files.push({ id: correctId, data, activity, url: `../${folder}/${path}` });
-        const publicPath = join(publicFolder, path);
-        writeFileSync(publicPath, data);
     }
     return files.map(({ id, url, activity }) => ({
         params: { id },
