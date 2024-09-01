@@ -19,9 +19,11 @@ import { user, following, followers } from "../data";
     </div>
 </div>
 <p>
-    <span>Latest Activity: </span>
-    <br />
-    <span>{activities.toReversed()[0]["Activity Date"]}</span>
+    {activities.length > 0 && (
+        <span>Latest Activity: </span>
+        <br />
+        <span>{activities.toReversed()[0]["Activity Date"]}</span>
+    )}
 </p>
 
 <style>
