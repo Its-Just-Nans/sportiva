@@ -39,7 +39,7 @@ jobs:
             - name: npm install
               run: npm ci --force
             - name: building
-              run: npm run build
+              run: npm run build && ls public && ls dist
             - name: Upload artifact
               uses: actions/upload-pages-artifact@v3
               with:
