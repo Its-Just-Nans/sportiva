@@ -39,7 +39,7 @@ export async function getStaticPaths() {
                 data = await decompressGzip(data);
             }
             data = data.toString();
-            files.push({ id: correctId, data, activity, url: `../${folder}/${path}` });
+            files.push({ id: correctId, data, activity, url: `../../${folder}/${path}` });
             const publicPath = join(publicFolder, path);
             writeFileSync(publicPath, data);
         }

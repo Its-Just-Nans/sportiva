@@ -18,7 +18,9 @@ import Misc from "../components/Misc.astro";
                 <li>Challenges</li>
             </ul>
         </nav>
-        <button>All free !</button>
+        <button>
+            <a class="link-repo" href="https://github.com/Its-Just-Nans/sportiva" target="_blank"> All free ! </a>
+        </button>
     </header>
     <main>
         <section class="user-profile">
@@ -35,6 +37,10 @@ import Misc from "../components/Misc.astro";
 </Layout>
 
 <style>
+    .link-repo {
+        color: white;
+        text-decoration: none;
+    }
     .user-profile {
         height: fit-content;
         background-color: white;

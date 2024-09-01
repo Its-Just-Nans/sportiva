@@ -36,13 +36,7 @@ if (distance > 1000) {
         <h4>{user.name}</h4>
         <p>
             {activity["Activity Date"]} •
-            {
-                view && (
-                    <a href={`./activity/${activity["Activity ID"]}`}>
-                        View Activity
-                    </a>
-                )
-            }
+            {view && <a href={`./activity/${activity["Activity ID"]}/`}>View Activity</a>}
         </p>
     </header>
     <h3>{activity["Activity Name"]}</h3>
