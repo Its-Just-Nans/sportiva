@@ -1,0 +1,85 @@
+---
+import { user as currentUser } from "../data";
+
+interface Props {
+    activity: any;
+    user?: any;
+    view?: boolean;
+}
+
+const { activity, user = currentUser, view = true } = Astro.props;
+
+let time = activity["Moving Time"] / 60;
+
+// time in minutes
+let timeDisplay = `${Math.floor(time)} min`;
+
+if (time > 60) {
+    let minutes = Math.floor(time % 60);
+    time = Math.floor(time / 60);
+    timeDisplay = `${time} hr ${minutes} min`;
+}
+
+let distance = activity["Distance"];
+let unitDistance = "m";
+if (distance > 1000) {
+    distance = (distance / 1000).toFixed(2);
+    unitDistance = "km";
+} else {
+    distance = Math.floor(distance);
+}
+---
+
+<article class="activity">
+    <header>
+        <img src={activity.userAvatar} alt={user.user} />
+        <h4>{user.name}</h4>
+        <p>
+            {activity["Activity Date"]} •
+            {
+                view && (
+                    <a href={`./activity/${activity["Activity ID"]}`}>
+                        View Activity
+                    </a>
+                )
+            }
+        </p>
+    </header>
+    <h3>{activity["Activity Name"]}</h3>
+    <p>{activity["Activity Description"]}</p>
+    <div class="activity-stats">
+        <span>Distance: {distance} {unitDistance}</span>
+        <span>Elev Gain: {Math.floor(activity["Elevation Gain"])}m</span>
+        <span>Time: {timeDisplay}</span>
+    </div>
+</article>
+
+<style>
+    .activity {
+        border-radius: 8px;
+        padding: 20px;
+        background-color: white;
+        border-bottom: 1px solid #e5e5e5;
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .activity header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .activity header img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+    }
+
+    .activity-stats {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 10px;
+    }
+</style>

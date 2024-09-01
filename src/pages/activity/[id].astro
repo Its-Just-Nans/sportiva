@@ -1,0 +1,169 @@
+---
+import { existsSync, mkdirSync, writeFileSync, readdirSync, readFileSync, copyFile } from "node:fs";
+import { join } from "node:path";
+import { gunzip } from "node:zlib";
+
+import { activities } from "../../data";
+import Activity from "../../components/Activity.astro";
+import Layout from "../../layouts/Layout.astro";
+
+export function decompressGzip(compressedData) {
+    return new Promise((resolve, reject) => {
+        gunzip(compressedData, (err, decompressedData) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(decompressedData);
+            }
+        });
+    });
+}
+
+export async function getStaticPaths() {
+    const files = [];
+    const folder = "activities";
+    const publicFolder = `public/${folder}`;
+    if (!existsSync(publicFolder)) {
+        mkdirSync(publicFolder);
+    }
+    for (const file of readdirSync("export/activities")) {
+        const activity = activities.find((act) => act["Filename"] == `activities/${file}`);
+        if (!activity) {
+            throw new Error(`Activity ${file} not found`);
+        }
+        let data = readFileSync(`export/activities/${file}`);
+        const correctId = activity["Activity ID"];
+        const path = correctId + ".gpx";
+        if (file.endsWith(".gpx.gz")) {
+            data = await decompressGzip(data);
+        }
+        data = data.toString();
+        files.push({ id: correctId, data, activity, url: `../${folder}/${path}` });
+        const publicPath = join(publicFolder, path);
+        writeFileSync(publicPath, data);
+    }
+    return files.map(({ id, url, activity }) => ({
+        params: { id },
+        props: { activity, url },
+    }));
+}
+
+const { activity, url } = Astro.props;
+---
+
+<Layout title={activity["Activity Name"]}>
+    <script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/2.1.0/gpx.min.js"></script>
+    <script is:inline src="https://cdn.plot.ly/plotly-2.35.0.min.js" charset="utf-8"></script>
+
+    <main>
+        <Activity activity={activity} view={false} />
+        <div id="map"></div>
+        <div class="graph" id="elevation"></div>
+        <div class="graph" id="speed"></div>
+        <div class="graph" id="cadence"></div>
+    </main>
+
+    <script define:vars={{ url: url }}>
+        const map = L.map("map");
+        const server = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+        L.tileLayer(server, {
+            attribution: 'Map data &copy; <a href="http://www.osm.org">OpenStreetMap</a>',
+        }).addTo(map);
+
+        map.setView([51.505, -0.09], 13);
+
+        const options = {
+            async: true,
+            polyline_options: { color: "red" },
+        };
+
+        const plotly = (gpx) => {
+            const elevation = gpx.get_elevation_data().reduce(
+                (acc, [x, y]) => {
+                    acc[0].push(x);
+                    acc[1].push(y);
+                    return acc;
+                },
+                [[], []]
+            );
+            var trace1 = {
+                x: elevation[0],
+                y: elevation[1],
+                mode: "lines+markers",
+                name: "Elevation",
+            };
+            Plotly.newPlot("elevation", [trace1], {
+                title: "Stats Elevation",
+            });
+
+            const speed = gpx.get_speed_data().reduce(
+                (acc, [x, y]) => {
+                    acc[0].push(x);
+                    acc[1].push(y);
+                    return acc;
+                },
+                [[], []]
+            );
+            var trace2 = {
+                x: speed[0],
+                y: speed[1],
+                mode: "lines+markers",
+                name: "Speed",
+            };
+            Plotly.newPlot("speed", [trace2], {
+                title: "Stats Speed",
+            });
+
+            const cadence = gpx.get_cadence_data().reduce(
+                (acc, [x, y]) => {
+                    acc[0].push(x);
+                    acc[1].push(y);
+                    return acc;
+                },
+                [[], []]
+            );
+            var trace3 = {
+                x: cadence[0],
+                y: cadence[1],
+                mode: "lines+markers",
+                name: "Cadence",
+            };
+
+            Plotly.newPlot("cadence", [trace3], {
+                title: "Stats cadence",
+            });
+        };
+
+        new L.GPX(url, options)
+            .on("loaded", (e) => {
+                map.fitBounds(e.target.getBounds());
+                plotly(e.target);
+            })
+            .addTo(map);
+    </script>
+</Layout>
+
+<style>
+    :global(#map img) {
+        position: absolute;
+    }
+    main {
+        height: 100%;
+    }
+
+    .graph {
+        overflow: hidden;
+        display: flex;
+        margin: auto;
+        height: 500px;
+        width: 80%;
+    }
+    #map {
+        display: flex;
+        margin: auto;
+        overflow: hidden;
+        height: 500px;
+        width: 80%;
+    }
+</style>

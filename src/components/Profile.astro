@@ -1,0 +1,35 @@
+---
+import { activities } from "../data";
+import { user, following, followers } from "../data";
+---
+
+<img src={user.avatar} alt={user.name} />
+<h2>{user["First Name"]} {user["Last Name"]}</h2>
+<h4>user#{user["Athlete ID"]}</h4>
+<div class="stats">
+    <div>
+        <div>Following</div>
+        <div>{following.length}</div>
+    </div>
+    <div>
+        <div>Followers</div><div>{followers.length}</div>
+    </div>
+    <div>
+        <div>Activities</div><div>{activities.length}</div>
+    </div>
+</div>
+<p>
+    <span>Latest Activity: </span>
+    <br />
+    <span>{activities.toReversed()[0]["Activity Date"]}</span>
+</p>
+
+<style>
+    .stats {
+        display: flex;
+        text-align: center;
+        font-size: 0.8em;
+        justify-content: space-between;
+        margin-top: 10px;
+    }
+</style>
