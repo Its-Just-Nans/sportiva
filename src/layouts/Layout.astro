@@ -5,7 +5,6 @@ interface Props {
 }
 
 const { title, description = "Sportiva - Ineffable Sport Application" } = Astro.props;
-const repo = "/sportiva";
 ---
 
 <!doctype html>
@@ -14,7 +13,7 @@ const repo = "/sportiva";
         <meta charset="UTF-8" />
         <meta name="description" content={description} />
         <meta name="viewport" content="width=device-width" />
-        <link rel="icon" href={`${repo}/sportiva.png`} />
+        <link rel="icon" href="/sportiva.png" />
         <meta name="generator" content={Astro.generator} />
         <title>{title}</title>
     </head>
