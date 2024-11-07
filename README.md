@@ -1,6 +1,6 @@
 # Sportiva
 
-Sportiva is a static clone looking like the famouse Strava website.
+Sportiva is a static clone looking like the famous Strava website.
 
 ## Why ?
 
