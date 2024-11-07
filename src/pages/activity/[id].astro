@@ -1,5 +1,5 @@
 ---
-import { existsSync, mkdirSync, writeFileSync, readdirSync, readFileSync, copyFile } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { gunzip } from "node:zlib";
 
@@ -7,7 +7,7 @@ import { activities } from "../../data";
 import Activity from "../../components/Activity.astro";
 import Layout from "../../layouts/Layout.astro";
 
-export function decompressGzip(compressedData) {
+export function decompressGzip(compressedData: ArrayBuffer): Promise<Buffer> {
     return new Promise((resolve, reject) => {
         gunzip(compressedData, (err, decompressedData) => {
             if (err) {
@@ -38,11 +38,11 @@ export async function getStaticPaths() {
             if (file.endsWith(".gpx.gz")) {
                 data = await decompressGzip(data);
             }
-            data = data.toString();
-            files.push({ id: correctId, data, activity, url: `../../${folder}/${path}` });
+            const dataStr = data.toString();
+            files.push({ id: correctId, dataStr, activity, url: `../../${folder}/${path}` });
             const publicPath = join(publicFolder, path);
             console.log("Copying", publicPath);
-            writeFileSync(publicPath, data);
+            writeFileSync(publicPath, dataStr);
         }
     }
     return files.map(({ id, url, activity }) => ({
@@ -74,7 +74,7 @@ const name = activity["Activity Name"];
         <div class="graph" id="cadence"></div>
     </main>
 
-    <script define:vars={{ url: url }}>
+    <script is:inline define:vars={{ url: url }}>
         const map = L.map("map");
         const server = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
         L.tileLayer(server, {

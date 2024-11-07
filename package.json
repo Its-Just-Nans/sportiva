@@ -1,18 +1,19 @@
 {
-  "name": "sporter",
-  "type": "module",
-  "version": "0.0.1",
-  "scripts": {
-    "dev": "astro dev",
-    "start": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
-  },
-  "dependencies": {
-    "@astrojs/check": "^0.9.3",
-    "astro": "^4.15.1",
-    "csv": "^6.3.10",
-    "typescript": "^5.5.4"
-  }
+    "name": "sportiva",
+    "type": "module",
+    "version": "0.0.1",
+    "scripts": {
+        "dev": "astro dev",
+        "start": "astro dev",
+        "build": "astro check && astro build",
+        "preview": "astro preview",
+        "astro": "astro"
+    },
+    "dependencies": {
+        "@astrojs/check": "^0.9.4",
+        "@types/node": "^22.9.0",
+        "astro": "^4.16.10",
+        "csv": "^6.3.10",
+        "typescript": "^5.5.4"
+    }
 }

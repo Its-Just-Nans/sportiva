@@ -1,15 +1,16 @@
 ---
 import { user as currentUser } from "../data";
+import type { ActivityType } from "../types";
 
 interface Props {
-    activity: any;
+    activity: ActivityType;
     user?: any;
     view?: boolean;
 }
 
 const { activity, user = currentUser, view = true } = Astro.props;
 
-let time = activity["Moving Time"] / 60;
+let time = parseFloat(activity["Moving Time"]) / 60;
 
 // time in minutes
 let timeDisplay = `${Math.floor(time)} min`;
@@ -20,30 +21,34 @@ if (time > 60) {
     timeDisplay = `${time} hr ${minutes} min`;
 }
 
-let distance = activity["Distance"];
+let distance = parseFloat(activity["Distance"]);
 let unitDistance = "m";
+let distanceString = distance.toString();
 if (distance > 1000) {
-    distance = (distance / 1000).toFixed(2);
+    distanceString = (distance / 1000).toFixed(2);
     unitDistance = "km";
 } else {
-    distance = Math.floor(distance);
+    distanceString = Math.floor(distance).toString();
 }
 ---
 
 <article class="activity">
     <header>
-        <img src={activity.userAvatar} alt={user.user} />
+        <img src={user.avatar} alt={user.name} />
         <h4>{user.name}</h4>
         <p>
-            {activity["Activity Date"]} •
-            {view && <a href={`./activity/${activity["Activity ID"]}/`}>View Activity</a>}
+            {activity["Activity Date"]}
+            {view && (
+                <span>•</span>
+                <a href={`./activity/${activity["Activity ID"]}/`}>View Activity</a>
+            )}
         </p>
     </header>
     <h3>{activity["Activity Name"]}</h3>
     <p>{activity["Activity Description"]}</p>
     <div class="activity-stats">
-        <span>Distance: {distance} {unitDistance}</span>
-        <span>Elev Gain: {Math.floor(activity["Elevation Gain"])}m</span>
+        <span>Distance: {distanceString} {unitDistance}</span>
+        <span>Elev Gain: {Math.floor(parseFloat(activity["Elevation Gain"]))}m</span>
         <span>Time: {timeDisplay}</span>
     </div>
 </article>
