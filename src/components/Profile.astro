@@ -1,12 +1,11 @@
 ---
 import { activities } from "../data";
 import { user, following, followers } from "../data";
+import ProfilePic from "./ProfilePic.astro";
 ---
 
 <div class="user-profile">
-
-    <img src={user.avatar} alt={user.name} />
-    <h2>{user.name} {user["Last Name"]}</h2>
+    <ProfilePic column={true} />
     <h4>user#{user["Athlete ID"]}</h4>
     <div class="stats">
         <div>
@@ -38,21 +37,6 @@ import { user, following, followers } from "../data";
         padding: 20px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
-
-    .user-profile img {
-        width: 100px;
-        height: 100px;
-        border-radius: 50%;
-        object-fit: cover;
-    }
-    @media screen and (max-width: 768px) {
-        .user-profile img {
-            width: 50px;
-            height: 50px;
-        }
-        
-    }
-
     .stats {
         display: flex;
         text-align: center;

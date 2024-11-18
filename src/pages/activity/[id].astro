@@ -70,7 +70,7 @@ const name = activity["Activity Name"];
 
     <main>
         <div>
-            <Activity activity={activity} view={false} />
+            <Activity activity={activity} view={false} column={true} />
         </div>
         <div class="activity-data">
             <div id="map"></div>
@@ -176,6 +176,10 @@ const name = activity["Activity Name"];
 <style>
     .activity-data {
         border: 1px solid black;
+        border-top: none;
+    }
+    .activity-data > * {
+        border-top: 1px solid black;
     }
     main {
         display: grid;
@@ -193,6 +197,8 @@ const name = activity["Activity Name"];
         display: flex;
         margin: auto;
         height: 500px;
+        padding: 20px;
+        background-color: white;
     }
     #map {
         display: flex;
@@ -202,6 +208,10 @@ const name = activity["Activity Name"];
     }
 
     @media screen and (max-width: 600px) {
+        main {
+            grid-template-columns: 1fr;
+            grid-template-rows: max-content auto auto;
+        }
         .graph {
             flex-direction: column;
             height: 300px;

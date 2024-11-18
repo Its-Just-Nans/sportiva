@@ -1,14 +1,16 @@
 ---
 import { user as currentUser } from "../data";
 import type { ActivityType } from "../types";
+import ProfilePic from "./ProfilePic.astro";
 
 interface Props {
     activity: ActivityType;
     user?: any;
     view?: boolean;
+    column?: boolean;
 }
 
-const { activity, user = currentUser, view = true } = Astro.props;
+const { activity, user = currentUser, view = true, column = false } = Astro.props;
 
 let time = parseFloat(activity["Moving Time"]) / 60;
 
@@ -32,10 +34,9 @@ if (distance > 1000) {
 }
 ---
 
-<article class="activity">
+<article class="activity" class:list={[{"activity-column": column}]}>
     <header>
-        <img src={user.avatar} alt={user.name} />
-        <h4>{user.name}</h4>
+        <ProfilePic tiny={view} column={!view} />
         <p>
             {activity["Activity Date"]}
             {view && (
@@ -70,15 +71,16 @@ if (distance > 1000) {
         gap: 10px;
     }
 
-    .activity header img {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-    }
-
     .activity-stats {
         display: flex;
         justify-content: space-between;
         margin-top: 10px;
     }
+    .activity-column .activity-stats {
+        flex-direction: column;
+    }
+    .activity-column header {
+        flex-direction: column;
+    }
+
 </style>
