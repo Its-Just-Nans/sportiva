@@ -1,12 +1,25 @@
 ---
-import { activities } from "../data";
 import { user, following, followers } from "../data";
+import type { FullActivity } from "../types";
 import ProfilePic from "./ProfilePic.astro";
+
+interface Props {
+    activities: FullActivity[];
+}
+
+const { activities } = Astro.props;
+
+const latestActivityDate = Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+}).format(new Date(activities.toReversed()[0].data.date));
+
 ---
 
 <div class="user-profile">
     <ProfilePic column={true} />
-    <h4>user#{user["Athlete ID"]}</h4>
+    <h4>user#0000 - {user.country}</h4>
     <div class="stats">
         <div>
             <div>Following</div>
@@ -23,7 +36,7 @@ import ProfilePic from "./ProfilePic.astro";
         {activities.length > 0 && (
             <span>Latest Activity: </span>
             <br />
-            <span>{activities.toReversed()[0]["Activity Date"]}</span>
+            <span>{latestActivityDate}</span>
         )}
 </p>
 </div>

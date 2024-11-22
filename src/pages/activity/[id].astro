@@ -1,223 +1,29 @@
 ---
-import { existsSync, mkdirSync, writeFileSync, readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
-import { gunzip } from "node:zlib";
-
-import { activities } from "../../data";
-import Activity from "../../components/Activity.astro";
 import Layout from "../../layouts/Layout.astro";
 import Header from "../../components/Header.astro";
+import ActivityPage from "../../components/ActivityPage.astro";
+import { getActivityById, getAllActivitiesIds } from "../../functions";
 
-export function decompressGzip(compressedData: ArrayBuffer): Promise<Buffer> {
-    return new Promise((resolve, reject) => {
-        gunzip(compressedData, (err, decompressedData) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(decompressedData);
-            }
-        });
+export async function getStaticPaths() {
+    const allActivitiesIds = await getAllActivitiesIds();
+    return allActivitiesIds.map((id) => {
+        return {
+            params: { id },
+            props: { id },
+        };
     });
 }
 
-export async function getStaticPaths() {
-    const files = [];
-    const folder = "activities";
-    const publicFolder = `public/${folder}`;
-    if (!existsSync(publicFolder)) {
-        mkdirSync(publicFolder);
-    }
-    if (existsSync("export/activities")) {
-        for (const file of readdirSync("export/activities")) {
-            const activity = activities.find((act) => act["Filename"] == `activities/${file}`);
-            if (!activity) {
-                throw new Error(`Activity ${file} not found`);
-            }
-            let data = readFileSync(`export/activities/${file}`);
-            const correctId = activity["Activity ID"];
-            const path = correctId + ".gpx";
-            if (file.endsWith(".gpx.gz")) {
-                data = await decompressGzip(data);
-            }
-            const dataStr = data.toString();
-            files.push({ id: correctId, dataStr, activity, url: `../../${folder}/${path}` });
-            const publicPath = join(publicFolder, path);
-            console.log("Copying", publicPath);
-            writeFileSync(publicPath, dataStr);
-        }
-    }
-    return files.map(({ id, url, activity }) => ({
-        params: { id },
-        props: { activity, url },
-    }));
+interface Props {
+    id: string;
 }
 
-const { activity, url } = Astro.props;
-const name = activity["Activity Name"];
+const { id } = Astro.props;
+const activity = await getActivityById(id);
+const name = activity.data.name;
 ---
 
 <Layout title={name} description={`Activity ${name} on Sportiva`}>
     <Header />
-    <script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
-    <link
-        rel="stylesheet"
-        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-        crossorigin=""
-    />
-    <script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/2.1.0/gpx.min.js"></script>
-    <script is:inline src="https://cdn.plot.ly/plotly-2.35.0.min.js" charset="utf-8"></script>
-
-    <main>
-        <div>
-            <Activity activity={activity} view={false} column={true} />
-        </div>
-        <div class="activity-data">
-            <div id="map"></div>
-            <div class="graph" id="elevation"></div>
-            <div class="graph" id="speed"></div>
-            <div class="graph" id="cadence"></div>
-        </div>
-    </main>
-
-    <script is:inline define:vars={{ url: url }}>
-        const map = L.map("map");
-        const server = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
-        L.tileLayer(server, {
-            attribution: 'Map data &copy; <a href="http://www.osm.org">OpenStreetMap</a>',
-        }).addTo(map);
-
-        map.setView([51.505, -0.09], 13);
-
-        const options = {
-            async: true,
-            polyline_options: { color: "red" },
-        };
-
-        const plotly = (gpx) => {
-            const margins = {
-                margin: {
-                    l: 50,
-                    r: 20,
-                    b: 20,
-                    t: 100,
-                    pad: 4,
-                },
-            };
-
-            const elevation = gpx.get_elevation_data().reduce(
-                (acc, [x, y]) => {
-                    acc[0].push(x);
-                    acc[1].push(y);
-                    return acc;
-                },
-                [[], []]
-            );
-            var trace1 = {
-                x: elevation[0],
-                y: elevation[1],
-                mode: "lines+markers",
-                name: "Elevation",
-            };
-            Plotly.newPlot("elevation", [trace1], {
-                title: "Stats Elevation",
-                ...margins,
-            });
-
-            const speed = gpx.get_speed_data().reduce(
-                (acc, [x, y]) => {
-                    acc[0].push(x);
-                    acc[1].push(y);
-                    return acc;
-                },
-                [[], []]
-            );
-            var trace2 = {
-                x: speed[0],
-                y: speed[1],
-                mode: "lines+markers",
-                name: "Speed",
-            };
-            Plotly.newPlot("speed", [trace2], {
-                title: "Stats Speed",
-                ...margins,
-            });
-
-            const cadence = gpx.get_cadence_data().reduce(
-                (acc, [x, y]) => {
-                    acc[0].push(x);
-                    acc[1].push(y);
-                    return acc;
-                },
-                [[], []]
-            );
-            var trace3 = {
-                x: cadence[0],
-                y: cadence[1],
-                mode: "lines+markers",
-                name: "Cadence",
-            };
-
-            Plotly.newPlot("cadence", [trace3], {
-                title: "Stats cadence",
-                ...margins,
-            });
-        };
-
-        new L.GPX(url, options)
-            .on("loaded", (e) => {
-                map.fitBounds(e.target.getBounds());
-                plotly(e.target);
-            })
-            .addTo(map);
-    </script>
+    <ActivityPage activity={activity} />
 </Layout>
-
-<style>
-    .activity-data {
-        border: 1px solid black;
-        border-top: none;
-    }
-    .activity-data > * {
-        border-top: 1px solid black;
-    }
-    main {
-        display: grid;
-        grid-template-columns: 250px 1fr;
-        grid-template-rows: max-content auto;
-        gap: 20px;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-        height: 90%;
-    }
-
-    .graph {
-        overflow: hidden;
-        display: flex;
-        margin: auto;
-        height: 500px;
-        padding: 20px;
-        background-color: white;
-    }
-    #map {
-        display: flex;
-        margin: auto;
-        overflow: hidden;
-        height: 500px;
-    }
-
-    @media screen and (max-width: 600px) {
-        main {
-            grid-template-columns: 1fr;
-            grid-template-rows: max-content auto auto;
-        }
-        .graph {
-            flex-direction: column;
-            height: 300px;
-        }
-        #map {
-            height: 300px;
-        }
-    }
-</style>

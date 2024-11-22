@@ -1,22 +1,25 @@
 ---
-import Activity from "../components/Activity.astro";
 import Layout from "../layouts/Layout.astro";
 
-import { activities, user } from "../data";
+import { user } from "../data";
 import Profile from "../components/Profile.astro";
 import Misc from "../components/Misc.astro";
 import Header from "../components/Header.astro";
+import { getAllActivities } from "../functions";
+import TinyActivity from "../components/TinyActivity.astro";
+
+const activities = await getAllActivities();
 ---
 
 <Layout title="Sportiva">
     <Header />
     <main>
         <section>
-            <Profile />
+            <Profile activities={activities} />
         </section>
         <section class="activity-feed">
             <h3>Activities ({activities.length})</h3>
-            {activities.toReversed().map((activity) => <Activity activity={activity} user={user} />)}
+            {activities.toReversed().map((activity) => <TinyActivity activity={activity} user={user} />)}
         </section>
         <aside>
             <Misc />

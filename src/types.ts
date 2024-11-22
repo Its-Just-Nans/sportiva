@@ -1,3 +1,31 @@
+import type { ParsedGPX } from "@we-gold/gpxjs";
+
+export type FullActivity = {
+    data: BaseActivity;
+    gpx: GpxFile;
+    parsedGpx: ParsedGPX;
+};
+
+export type GpxFile = {
+    content: string;
+    path: string;
+};
+
+export type BaseActivity = {
+    id: string;
+    name: string;
+    type: string;
+    date: Date;
+    description: string;
+    startTime: Date;
+    endTime: Date;
+    movingDuration: number;
+    totalDuration: number;
+    distance: number;
+    elevationGain: number;
+    appActivity?: ActivityType;
+};
+
 export type ActivityType = {
     "Activity ID": string;
     "Activity Date": string;
